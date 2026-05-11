@@ -1,6 +1,8 @@
+setuptools
 fastapi
 uvicorn
 python-multipart
 openai-whisper==20240930
-numpy
+yt-dlp
+numpy==1.26.4
 scikit-learn
