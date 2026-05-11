@@ -2,8 +2,8 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import shutil, os
 from transcribe import transcribe_video
-from .search import search_transcript
-from .downloader import download_video
+from search import search_transcript
+from downloader import download_video
 from pydantic import BaseModel
 
 app = FastAPI()
