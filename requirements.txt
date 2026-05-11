@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+python-multipart
+openai-whisper==20240930
+numpy
+scikit-learn
