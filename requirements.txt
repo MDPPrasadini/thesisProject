@@ -2,7 +2,7 @@ setuptools
 fastapi
 uvicorn
 python-multipart
-openai-whisper==20240930
+git+https://github.com/openai/whisper.git
 yt-dlp
 numpy==1.26.4
 scikit-learn
