@@ -1,37 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>AI Lecture Search</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>AI Lecture Search - DSV</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<h1>AI Lecture Search</h1>
+  <!-- TOP BANNER -->
+  <header class="top-banner">
+    <div class="container banner-content">
 
-<input type="file" id="fileInput">
-<button onclick="upload()">Upload Lecture</button>
-<h3>Or download lecture by URL</h3>
+      <img src="su_swe.png" class="logo" alt="Stockholm University Logo">
 
-<input
-  id="lectureUrl"
-  type="text"
-  placeholder="Paste lecture URL"
-/>
+      <div class="banner-text">
+        <div class="department">Department of Computer and Systems Sciences (DSV)</div>
+      </div>
 
-<button onclick="downloadLecture()">
-  Download & Transcribe
-</button>
-<br><br>
+    </div>
+  </header>
 
-<input type="text" id="searchBox" placeholder="Search lecture...">
-<button onclick="search()">Search</button>
+  <!-- MAIN CONTENT -->
+  <main class="container content">
 
-<br><br>
+    <h1>AI Lecture Search</h1>
 
-<video id="video" width="700" controls></video>
+    <!-- UPLOAD SECTION -->
+    <section class="block">
+      <input type="file" id="fileInput" class="input-box">
+      <button onclick="upload()" class="btn">Upload Lecture</button>
+      <div id="uploadProgress" class="progress"></div>
+    </section>
 
-<div id="results"></div>
+    <!-- SEARCH SECTION -->
+    <section class="block">
+      <input type="text" id="searchBox" class="input-box" placeholder="Search lecture...">
+      <button onclick="search()" class="btn">Search</button>
+      <div id="searchProgress" class="progress"></div>
+    </section>
 
-<script src="app.js"></script>
+    <!-- VIDEO -->
+    <section class="block">
+      <video id="video" controls></video>
+    </section>
+    <!-- STATUS -->
+    <div id="status" class="status"></div>
+
+    <!-- PROGRESS BAR -->
+    <div id="progressContainer" class="progress-container">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <!-- RESULTS -->
+    <section class="block">
+      <div id="results"></div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-content">
+      © 2026 AI Lecture Search – Master Thesis Project, Department of Computer and Systems Sciences (DSV), Stockholm
+      University
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
 </body>
+
 </html>

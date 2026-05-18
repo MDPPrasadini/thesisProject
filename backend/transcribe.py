@@ -1,6 +1,6 @@
 import whisper, json, os
 
-model = whisper.load_model("tiny")
+model = whisper.load_model("base", device="cpu")
 TRANSCRIPT_PATH = "data/transcripts/transcript.json"
 os.makedirs("data/transcripts", exist_ok=True)
 
