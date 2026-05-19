@@ -1,7 +1,8 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import shutil, os
+import shutil
+import os
 
 from .transcribe import transcribe_video
 from .search import search_transcript
@@ -42,13 +43,12 @@ async def upload(file: UploadFile = File(...)):
 
     return {
         "status": "success",
-        "message": "Transcription complete",
-        "filename": file.filename,
+        "message": "Upload complete",
         "transcript": transcript
     }
 
 
-# ===== SEARCH (POST for frontend flexibility) =====
+# ===== SEARCH =====
 @app.post("/search")
 def search(data: SearchRequest):
     results = search_transcript(data.query)
@@ -59,14 +59,14 @@ def search(data: SearchRequest):
     }
 
 
-# ===== DOWNLOAD + TRANSCRIBE =====
+# ===== DOWNLOAD URL =====
 @app.post("/download-url")
 async def download_from_url(data: UrlRequest):
     file_path = download_video(data.url)
+
     transcript = transcribe_video(file_path)
 
     return {
         "status": "success",
-        "message": "Lecture downloaded and transcribed",
         "transcript": transcript
     }

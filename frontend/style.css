@@ -3,13 +3,12 @@ body {
     font-family: Arial, sans-serif;
     background: white;
     color: #111;
-
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
-/* ===== 60% CENTER CONTAINER ===== */
+/* ===== CONTAINER ===== */
 .container {
     width: 60%;
     margin: 0 auto;
@@ -19,12 +18,10 @@ body {
 .top-banner {
     width: 100%;
     height: 140px;
-
     background: #003366;
     color: white;
 }
 
-/* banner inner alignment */
 .banner-content {
     height: 100%;
     display: flex;
@@ -32,79 +29,43 @@ body {
     gap: 20px;
 }
 
-/* logo */
 .logo {
     height: 120px;
 }
 
-/* text */
 .department {
     font-size: 18px;
     font-weight: 600;
-    line-height: 1.3;
 }
 
-/* ===== CONTENT ===== */
+/* ===== MAIN ===== */
 .content {
     flex: 1;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
 }
 
-/* inputs */
-input,
-button {
-    padding: 10px;
+h1 {
+    color: #003366;
+    margin-bottom: 20px;
 }
 
-/* video */
-video {
-    width: 100%;
-}
-
-/* ===== FOOTER ===== */
-.footer {
-    width: 100%;
-    height: 90px;
-
-    background: #003366;
-    color: white;
-}
-
-/* footer inner alignment */
-.footer-content {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    /* LEFT aligned */
-    font-size: 14px;
-}
-
-/* INPUT STYLE */
+/* ===== INPUT ===== */
 .input-box {
     width: 100%;
     padding: 12px;
-
     border: 1px solid #ccc;
     border-radius: 6px;
-
-    font-size: 14px;
     box-sizing: border-box;
-
-    margin-top: 8px;
 }
 
-/* BUTTON STYLE */
+/* ===== BUTTON ===== */
 button {
     margin-top: 8px;
     padding: 10px 16px;
-
     background: #003366;
     color: white;
-
     border: none;
     border-radius: 6px;
-
     cursor: pointer;
 }
 
@@ -112,27 +73,50 @@ button:hover {
     background: #002244;
 }
 
-/* VIDEO HEIGHT (DOUBLED) */
+/* ===== VIDEO ===== */
 video {
     width: 100%;
     height: 400px;
     margin-top: 15px;
 }
 
-:root {
-    --su-dark-blue: #003366;
-    --su-link: #66829f;
-}
-
-/* MAIN TITLE */
-h1 {
-    color: var(--su-dark-blue);
-    font-weight: 700;
-    margin-bottom: 20px;
-}
-
-/* SEARCH RESULT LINKS (buttons inside results) */
+/* ===== RESULTS ===== */
 #results button {
-    background: var(--su-dark-blue);
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 8px;
+    background: #66829f;
+}
 
+#results button:hover {
+    background: #4f6984;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    width: 100%;
+    height: 90px;
+    background: #003366;
+    color: white;
+}
+
+.footer-content {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.upload-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.status {
+    font-size: 14px;
+    color: #003366;
+    white-space: nowrap;
 }

@@ -12,13 +12,10 @@
   <!-- TOP BANNER -->
   <header class="top-banner">
     <div class="container banner-content">
-
-      <img src="su_swe.png" class="logo" alt="Stockholm University Logo">
-
-      <div class="banner-text">
-        <div class="department">Department of Computer and Systems Sciences (DSV)</div>
+      <img src="su_swe.png" class="logo" alt="SU Logo">
+      <div class="department">
+        Department of Computer and Systems Sciences (DSV)
       </div>
-
     </div>
   </header>
 
@@ -27,32 +24,28 @@
 
     <h1>AI Lecture Search</h1>
 
-    <!-- UPLOAD SECTION -->
+    <!-- UPLOAD -->
     <section class="block">
       <input type="file" id="fileInput" class="input-box">
-      <button onclick="upload()" class="btn">Upload Lecture</button>
-      <div id="uploadProgress" class="progress"></div>
-    </section>
+      <div class="upload-row">
+        <button onclick="upload()" class="btn">Upload Lecture</button>
 
-    <!-- SEARCH SECTION -->
-    <section class="block">
-      <input type="text" id="searchBox" class="input-box" placeholder="Search lecture...">
-      <button onclick="search()" class="btn">Search</button>
-      <div id="searchProgress" class="progress"></div>
-    </section>
-
-    <!-- VIDEO -->
-    <section class="block">
-      <video id="video" controls></video>
+        <div id="status" class="status"></div>
+      </div>
     </section>
     <!-- STATUS -->
     <div id="status" class="status"></div>
+    <!-- SEARCH -->
+    <section class="block">
+      <input type="text" id="searchBox" class="input-box" placeholder="Search lecture...">
+      <button onclick="search()">Search</button>
+      <div id="searchProgress"></div>
+    </section>
 
-    <!-- PROGRESS BAR -->
-    <div id="progressContainer" class="progress-container">
-      <div id="progressBar" class="progress-bar"></div>
-    </div>
-    <!-- RESULTS -->
+    <!-- VIDEO -->
+    <video id="video" controls></video>
+
+    <!-- SEARCH RESULTS -->
     <section class="block">
       <div id="results"></div>
     </section>
@@ -62,8 +55,7 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container footer-content">
-      © 2026 AI Lecture Search – Master Thesis Project, Department of Computer and Systems Sciences (DSV), Stockholm
-      University
+      © 2026 AI Lecture Search – DSV Stockholm University
     </div>
   </footer>
 

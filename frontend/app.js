@@ -1,22 +1,12 @@
-
 const API = "http://localhost:8000";
 
-
-// ===================== UI HELPERS =====================
+// ===================== STATUS =====================
 function setStatus(msg) {
-    document.getElementById("status").innerText = msg;
+    const el = document.getElementById("status");
+    if (el) el.innerText = msg;
 }
 
-function showProgress(show) {
-    document.getElementById("progressContainer").style.display = show ? "block" : "none";
-}
-
-function setProgress(value) {
-    document.getElementById("progressBar").style.width = value + "%";
-}
-
-
-// ===================== UPLOAD (WITH PROGRESS) =====================
+// ===================== UPLOAD =====================
 function upload() {
     const fileInput = document.getElementById("fileInput");
 
@@ -33,29 +23,37 @@ function upload() {
     xhr.open("POST", API + "/upload");
 
     xhr.onloadstart = function () {
-        showProgress(true);
-        setProgress(0);
-        setStatus("Uploading...");
+        setStatus("Uploading lecture...");
     };
 
     xhr.upload.onprogress = function (event) {
         if (event.lengthComputable) {
             const percent = Math.round((event.loaded / event.total) * 100);
-            setProgress(percent);
-            setStatus("Uploading... " + percent + "%");
         }
     };
 
     xhr.onload = function () {
-        setProgress(100);
         setStatus("Upload complete ✅");
 
+        let data = {};
         try {
-            const data = JSON.parse(xhr.responseText);
-            console.log("Transcript:", data.transcript);
+            data = JSON.parse(xhr.responseText);
         } catch (e) {
-            console.error(e);
+            console.error("Invalid JSON", e);
         }
+
+        console.log("Transcript:", data.transcript);
+
+        // show video locally
+        const video = document.getElementById("video");
+        video.src = URL.createObjectURL(file);
+
+        renderTopics(data.topics || []);
+
+        // hide progress after short delay
+        setTimeout(() => {
+            setStatus("");
+        }, 800);
     };
 
     xhr.onerror = function () {
@@ -63,43 +61,25 @@ function upload() {
     };
 
     xhr.send(formData);
-
-    // show video locally
-    const video = document.getElementById("video");
-    video.src = URL.createObjectURL(file);
 }
-
 
 // ===================== SEARCH =====================
 async function search() {
     const query = document.getElementById("searchBox").value;
 
-    showProgress(true);
-    setProgress(30);
-    setStatus("Searching...");
-
     try {
         const res = await fetch(API + "/search", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ query })
         });
 
-        setProgress(80);
-
         const data = await res.json();
-
-        setProgress(100);
-        setStatus("Search complete ✅");
 
         const resultsDiv = document.getElementById("results");
         resultsDiv.innerHTML = "";
 
-        const results = data.results || [];
-
-        results.forEach(r => {
+        (data.results || []).forEach(r => {
             const div = document.createElement("div");
             div.innerHTML = `
                 <button onclick="jump(${r.start})">
@@ -109,18 +89,29 @@ async function search() {
             resultsDiv.appendChild(div);
         });
 
-        setTimeout(() => {
-            showProgress(false);
-            setStatus("");
-        }, 800);
-
     } catch (err) {
         console.error(err);
         setStatus("Search failed ❌");
-        showProgress(false);
     }
 }
 
+// ===================== TOPICS =====================
+function renderTopics(topics) {
+    const container = document.getElementById("topics");
+    container.innerHTML = "";
+
+    topics.forEach(t => {
+        const btn = document.createElement("button");
+        btn.className = "btn";
+        btn.innerText = t.title;
+
+        btn.onclick = () => {
+            alert("Topic clicked: " + t.title);
+        };
+
+        container.appendChild(btn);
+    });
+}
 
 // ===================== VIDEO SEEK =====================
 function jump(time) {
@@ -129,7 +120,6 @@ function jump(time) {
     video.play();
 }
 
-
 // ===================== TIME FORMAT =====================
 function formatTime(seconds) {
     const m = Math.floor(seconds / 60);
@@ -137,21 +127,17 @@ function formatTime(seconds) {
     return `${m}:${s < 10 ? "0" + s : s}`;
 }
 
-
 // ===================== DOWNLOAD URL =====================
 async function downloadLecture() {
     const url = document.getElementById("lectureUrl").value;
 
     const response = await fetch(API + "/download-url", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url })
     });
 
     const data = await response.json();
-
     document.getElementById("results").innerText =
         JSON.stringify(data.transcript, null, 2);
 }
