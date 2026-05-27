@@ -6,3 +6,7 @@ git+https://github.com/openai/whisper.git
 yt-dlp
 numpy==1.26.4
 scikit-learn
+openai-whisper
+ffmpeg-python
+torch
+nltk
