@@ -1,143 +1,535 @@
 const API = "http://localhost:8000";
 
-// ===================== STATUS =====================
+const DOM = {
+  status: document.getElementById("status"),
+  loaderOverlay: document.getElementById("loaderOverlay"),
+  loaderText: document.getElementById("loaderText"),
+  video: document.getElementById("video"),
+  fileInput: document.getElementById("fileInput"),
+  searchBox: document.getElementById("searchBox"),
+
+  mainSummary: document.getElementById("mainSummary"),
+  searchTranscriptTab: document.getElementById("searchTranscriptTab"),
+  searchSummaryTab: document.getElementById("searchSummaryTab"),
+  aiSummaryTab: document.getElementById("aiSummaryTab"),
+
+  mainSummarySection: document.getElementById("mainSummarySection"),
+  searchTranscriptSection: document.getElementById("searchTranscriptSection"),
+  aiSummarySection: document.getElementById("aiSummarySection"),
+  searchSummarySection: document.getElementById("searchSummarySection"),
+};
+
+// ===================== APP STATE =====================
+const state = {
+  searchQuery: "",
+};
+
+// ===================== UI HELPERS =====================
 function setStatus(msg) {
-    const el = document.getElementById("status");
-    if (el) el.innerText = msg;
+  DOM.status.innerText = msg;
 }
 
-// ===================== UPLOAD =====================
-function upload() {
-    const fileInput = document.getElementById("fileInput");
+// ===================== INITIAL LOAD =====================
+window.onload = function () {
+  clearUI();
+  hideTabBar();
+};
 
-    if (!fileInput.files.length) {
-        alert("Please select a file");
-        return;
+// ===================== UPLOAD (WITH PROGRESS) =====================
+async function upload() {
+  const fileInput = DOM.fileInput;
+
+  if (!fileInput.files.length) {
+    alert("Please select a file");
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", API + "/upload");
+
+  xhr.onloadstart = function () {
+    showLoader("Uploading...");
+    setStatus("Uploading...");
+  };
+
+  xhr.upload.onprogress = function (event) {
+    if (event.lengthComputable) {
+      const percent = Math.round((event.loaded / event.total) * 100);
+      if (percent == 100) {
+        setStatus("Generating transcript ....");
+        showLoader("Generating transcript ....");
+      } else {
+        setStatus("Uploading... " + percent + "%");
+      }
     }
+  };
 
-    const file = fileInput.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
+  xhr.onload = function () {
+    try {
+      const data = JSON.parse(xhr.responseText);
+      console.log("Transcript:", data.transcript);
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", API + "/upload");
+      setStatus("Upload complete ✅");
+      saveToCache(file.name, {
+        transcript: data.transcript,
+        segments: data.segments,
+        topics: data.topics,
+      });
 
-    xhr.onloadstart = function () {
-        setStatus("Uploading lecture...");
-    };
+      showMainTopics();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-    xhr.upload.onprogress = function (event) {
-        if (event.lengthComputable) {
-            const percent = Math.round((event.loaded / event.total) * 100);
-        }
-    };
+  xhr.onerror = function () {
+    setStatus("Upload failed ❌");
+  };
 
-    xhr.onload = function () {
-        setStatus("Upload complete ✅");
+  xhr.send(formData);
 
-        let data = {};
-        try {
-            data = JSON.parse(xhr.responseText);
-        } catch (e) {
-            console.error("Invalid JSON", e);
-        }
-
-        console.log("Transcript:", data.transcript);
-
-        // show video locally
-        const video = document.getElementById("video");
-        video.src = URL.createObjectURL(file);
-
-        renderTopics(data.topics || []);
-
-        // hide progress after short delay
-        setTimeout(() => {
-            setStatus("");
-        }, 800);
-    };
-
-    xhr.onerror = function () {
-        setStatus("Upload failed ❌");
-    };
-
-    xhr.send(formData);
+  // show video locally
+  const video = DOM.video;
+  video.src = URL.createObjectURL(file);
 }
 
 // ===================== SEARCH =====================
 async function search() {
-    const query = document.getElementById("searchBox").value;
+  state.searchQuery = DOM.searchBox.value;
+  console.log(state.searchQuery);
+  showLoader("Searching...");
+  setStatus("Searching...");
+  DOM.mainSummarySection.innerHTML = "";
+  try {
+    const res = await fetch(API + "/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query: state.searchQuery }),
+    });
 
-    try {
-        const res = await fetch(API + "/search", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query })
-        });
+    const data = await res.json();
+    setStatus("Search complete ✅");
+    const results = data.results || [];
+    console.log(results);
+    renderSearchResults("searchTranscriptSection", results, state.searchQuery);
 
-        const data = await res.json();
+    // SHOW transcript tab
+    document
+      .querySelectorAll(".tab-pane")
+      .forEach((tab) => tab.classList.remove("active-tab"));
 
-        const resultsDiv = document.getElementById("results");
-        resultsDiv.innerHTML = "";
+    DOM.searchTranscriptTab.classList.add("active-tab");
 
-        (data.results || []).forEach(r => {
-            const div = document.createElement("div");
-            div.innerHTML = `
-                <button onclick="jump(${r.start})">
-                    ${formatTime(r.start)} - ${r.text}
-                </button>
-            `;
-            resultsDiv.appendChild(div);
-        });
-
-    } catch (err) {
-        console.error(err);
-        setStatus("Search failed ❌");
-    }
+    showTabBar();
+    setTimeout(() => {
+      hideLoader();
+      setStatus("");
+    }, 800);
+  } catch (err) {
+    console.error(err);
+    setStatus("Search failed ❌");
+    hideLoader();
+  }
 }
 
-// ===================== TOPICS =====================
-function renderTopics(topics) {
-    const container = document.getElementById("topics");
-    container.innerHTML = "";
+// =====================  GENERATE MAIN TOPICS =====================
+async function generateMainTopics() {
+  showLoader("Generating Lecture Summary...");
+  setStatus("Generating Lecture Summary...");
 
-    topics.forEach(t => {
-        const btn = document.createElement("button");
-        btn.className = "btn";
-        btn.innerText = t.title;
+  try {
+    const cached = JSON.parse(localStorage.getItem("lectureCache") || "{}");
+    const fileKeys = Object.keys(cached);
 
-        btn.onclick = () => {
-            alert("Topic clicked: " + t.title);
-        };
+    if (!fileKeys.length) {
+      setStatus("Please upload a lecture first.");
+      return;
+    }
 
-        container.appendChild(btn);
+    const latest = cached[fileKeys[fileKeys.length - 1]];
+    const segments = latest.transcript;
+
+    const res = await fetch(API + "/summary", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ segments }),
     });
+
+    const data = await res.json();
+    const results = data.results || [];
+
+    renderMainTopics(results);
+    setStatus("Summary generated ✅");
+  } catch (err) {
+    console.error(err);
+    hideLoader();
+    setStatus("Summary failed ❌");
+  } finally {
+    hideLoader();
+  }
+}
+
+// =====================  GENERATE LECTURE SEARCH SUMMARY =====================
+async function generateSearchSummary() {
+  showLoader("Generating Lecture Summary...");
+  setStatus("Generating Lecture Summary...");
+
+  try {
+    const cached = JSON.parse(localStorage.getItem("lectureCache") || "{}");
+    const fileKeys = Object.keys(cached);
+
+    if (!fileKeys.length) {
+      setStatus("Please upload a lecture first.");
+      return;
+    }
+
+    const latest = cached[fileKeys[fileKeys.length - 1]];
+    const segments = latest.transcript;
+    console.log(latest.transcript);
+    const res = await fetch(API + "/search-summary", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ segments, query: state.searchQuery }),
+    });
+
+    const data = await res.json();
+    const results = data.results || [];
+    console.log(results);
+
+    renderSearchSummary(results);
+    setStatus("Summary generated ✅");
+  } catch (err) {
+    console.error(err);
+    setStatus("Summary failed ❌");
+  } finally {
+    hideLoader();
+  }
+}
+
+// =====================  GENERATE SEARCH AI SUMMARY =====================
+async function generateSearchAISummary() {
+  showLoader("Generating Search Summary using AI...");
+  setStatus("Generating Search Summary using AI...");
+
+  try {
+    const cached = JSON.parse(localStorage.getItem("lectureCache") || "{}");
+    const fileKeys = Object.keys(cached);
+
+    if (!fileKeys.length) {
+      setStatus("Please upload a lecture first.");
+      return;
+    }
+
+    const latest = cached[fileKeys[fileKeys.length - 1]];
+    const segments = latest.transcript;
+    console.log(latest.transcript);
+    const res = await fetch(API + "/search-ai-summary", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ segments, query: state.searchQuery }),
+    });
+
+    const data = await res.json();
+    const results = data.results || [];
+
+    renderSearchAISummaries(results);
+    setStatus("AI Summary generated ✅");
+  } catch (err) {
+    console.error(err);
+    setStatus("Summary failed ❌");
+  } finally {
+    hideLoader();
+  }
+}
+
+// ===================== SHOW MAIN TOPICS =====================
+async function showMainTopics() {
+  // hide tab bar initially
+  hideTabBar();
+  // show Topics section by default
+  document.querySelectorAll(".tab-pane").forEach((tab) => {
+    tab.classList.remove("active-tab");
+  });
+  DOM.mainSummary.classList.add("active-tab");
+
+  // ===== CACHE CHECK =====
+  const fileInput = DOM.fileInput;
+  if (!fileInput.files.length) {
+    alert("Please select a file");
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const cached = getFromCache(file.name);
+  if (cached) {
+    generateMainTopics();
+  }
+}
+
+function renderMainTopics(topics) {
+  DOM.searchTranscriptSection.innerHTML = "";
+  DOM.aiSummarySection.innerHTML = "";
+
+  hideTabBar();
+  DOM.mainSummary.classList.add("active-tab");
+
+  renderCards({
+    container: DOM.mainSummarySection,
+    title: "Main Lecture Topics",
+    items: topics,
+  });
+}
+
+function renderSearchResults(tabId, results, query) {
+  renderCards({
+    container: document.getElementById(tabId),
+    title: `Search Results for "${query}"`,
+    items: results,
+    type: "search-results",
+    query,
+    emptyMessage: "No transcript matches found.",
+  });
+}
+
+function renderSearchSummary(topics) {
+  DOM.searchSummaryTab.classList.add("active-tab");
+
+  renderCards({
+    container: DOM.searchSummarySection,
+    title: "Search Topics",
+    items: topics,
+  });
+}
+
+function renderSearchAISummaries(aiSummaries) {
+  DOM.aiSummaryTab.classList.add("active-tab");
+
+  renderCards({
+    container: DOM.aiSummarySection,
+    title: "Main Lecture Topics",
+    items: aiSummaries,
+    summaryField: "lecture_summary",
+    showResources: true,
+  });
+}
+
+// ===================== TAB BAR CONTROL =====================
+function hideTabBar() {
+  document.querySelector(".dsv-tabbar").style.display = "none";
+}
+
+function showTabBar() {
+  document.querySelector(".dsv-tabbar").style.display = "flex";
+}
+
+// ===================== TAB SYSTEM =====================
+function openTab(tabId, button) {
+  console.log(tabId);
+  // hide all tabs
+  const tabs = document.querySelectorAll(".tab-pane");
+  tabs.forEach((tab) => {
+    tab.classList.remove("active-tab");
+  });
+
+  // remove active button
+  const buttons = document.querySelectorAll(".tab-link");
+
+  buttons.forEach((btn) => {
+    btn.classList.remove("active");
+  });
+
+  // show selected tab
+  document.getElementById(tabId).classList.add("active-tab");
+console.log(DOM.searchSummarySection.innerHTML.trim())
+  // activate button
+  button.classList.add("active");
+  if (tabId === "aiSummaryTab") {
+    generateSearchAISummary();
+  }
+  if (tabId == "searchSummaryTab") {
+    generateSearchSummary();
+  }
+}
+
+// ===================== HIGHLIGHT SEARCH =====================
+function highlightKeyword(text, keyword) {
+  const regex = new RegExp(`(${keyword})`, "gi");
+  return text.replace(regex, `<mark>$1</mark>`);
 }
 
 // ===================== VIDEO SEEK =====================
 function jump(time) {
-    const video = document.getElementById("video");
-    video.currentTime = time;
-    video.play();
+  const video = DOM.video;
+  video.currentTime = time;
+  video.play();
 }
 
 // ===================== TIME FORMAT =====================
 function formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m}:${s < 10 ? "0" + s : s}`;
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s < 10 ? "0" + s : s}`;
 }
 
-// ===================== DOWNLOAD URL =====================
-async function downloadLecture() {
-    const url = document.getElementById("lectureUrl").value;
+// ===================== CACHE =====================
+function saveToCache(filename, data) {
+  const cache = JSON.parse(localStorage.getItem("lectureCache") || "{}");
 
-    const response = await fetch(API + "/download-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url })
+  cache[filename] = {
+    ...data,
+    timestamp: Date.now(),
+  };
+
+  localStorage.setItem("lectureCache", JSON.stringify(cache));
+}
+
+function getFromCache(filename) {
+  const cache = JSON.parse(localStorage.getItem("lectureCache") || "{}");
+
+  return cache[filename];
+}
+
+// ===================== RESET UI =====================
+function clearUI() {
+  DOM.mainSummarySection.innerHTML = "";
+  DOM.searchTranscriptSection.innerHTML = "";
+  DOM.aiSummarySection.innerHTML = "";
+}
+
+let loaderTimeout;
+
+function showLoader(message = "Loading...") {
+  loaderTimeout = setTimeout(() => {
+    DOM.loaderOverlay.classList.remove("hidden");
+
+    DOM.loaderText.innerText = message;
+  }, 200);
+}
+
+function hideLoader() {
+  clearTimeout(loaderTimeout);
+
+  DOM.loaderOverlay.classList.add("hidden");
+}
+
+function renderCards({
+  container,
+  title,
+  items,
+  emptyMessage = "No data found.",
+  type = "topics",
+  summaryField = "summary",
+  showResources = false,
+  query = "",
+}) {
+  if (!container) return;
+
+  if (!items || !items.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        ${emptyMessage}
+      </div>
+    `;
+    return;
+  }
+
+  let html = `<h2>${title}</h2>`;
+
+  // =====================
+  // SEARCH RESULTS MODE
+  // =====================
+  if (type === "search-results") {
+    items.forEach((item) => {
+      html += `
+        <div class="segment">
+
+          <button onclick="jump(${item.start})">
+            ${formatTime(item.start)}
+          </button>
+
+          <span>
+            ${highlightKeyword(item.text, query)}
+          </span>
+
+        </div>
+      `;
     });
 
-    const data = await response.json();
-    document.getElementById("results").innerText =
-        JSON.stringify(data.transcript, null, 2);
+    container.innerHTML = html;
+    return;
+  }
+
+  // =====================
+  // TOPIC CARDS MODE
+  // =====================
+  items.forEach((item) => {
+    html += `
+      <div class="topic-card">
+
+        <h3>${item.topic}</h3>
+
+        <p>${item[summaryField] || ""}</p>
+
+        <div class="keywords">
+          ${(item.keywords || [])
+            .map(
+              (k) => `
+                <span class="keyword">
+                  ${k}
+                </span>
+              `,
+            )
+            .join("")}
+        </div>
+    `;
+
+    // =====================
+    // OPTIONAL RESOURCES
+    // =====================
+    if (showResources && item.resources?.length) {
+      html += `
+        <div class="resources">
+
+          <h4>Learning Resources</h4>
+
+          ${item.resources
+            .map(
+              (r) => `
+                <div class="resource-link">
+
+                  <a href="${r.url}" target="_blank">
+                    ${r.title}
+                  </a>
+
+                </div>
+              `,
+            )
+            .join("")}
+
+        </div>
+      `;
+    }
+
+    html += `
+        <button onclick="jump(${item.timestamp})">
+          Jump to ${formatTime(item.timestamp)}
+        </button>
+
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
 }
