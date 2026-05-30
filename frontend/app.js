@@ -22,6 +22,8 @@ const DOM = {
 // ===================== APP STATE =====================
 const state = {
   searchQuery: "",
+  searchSummaryCache: {},
+  aiSummaryCache: {},
 };
 
 // ===================== UI HELPERS =====================
@@ -101,6 +103,8 @@ async function upload() {
 async function search() {
   state.searchQuery = DOM.searchBox.value;
   console.log(state.searchQuery);
+  delete state.searchSummaryCache[state.searchQuery];
+  delete state.aiSummaryCache[state.searchQuery];
   showLoader("Searching...");
   setStatus("Searching...");
   DOM.mainSummarySection.innerHTML = "";
@@ -179,6 +183,14 @@ async function generateMainTopics() {
 
 // =====================  GENERATE LECTURE SEARCH SUMMARY =====================
 async function generateSearchSummary() {
+  const query = state.searchQuery;
+
+  // Use cached data if available
+  if (state.searchSummaryCache[query]) {
+    renderSearchSummary(state.searchSummaryCache[query]);
+    return;
+  }
+
   showLoader("Generating Lecture Summary...");
   setStatus("Generating Lecture Summary...");
 
@@ -205,7 +217,7 @@ async function generateSearchSummary() {
     const data = await res.json();
     const results = data.results || [];
     console.log(results);
-
+    state.searchSummaryCache[query] = results;
     renderSearchSummary(results);
     setStatus("Summary generated ✅");
   } catch (err) {
@@ -218,6 +230,13 @@ async function generateSearchSummary() {
 
 // =====================  GENERATE SEARCH AI SUMMARY =====================
 async function generateSearchAISummary() {
+  const query = state.searchQuery;
+  // Use cached data if available
+  if (state.aiSummaryCache[query]) {
+    renderSearchAISummaries(state.aiSummaryCache[query]);
+    return;
+  }
+
   showLoader("Generating Search Summary using AI...");
   setStatus("Generating Search Summary using AI...");
 
@@ -243,7 +262,7 @@ async function generateSearchAISummary() {
 
     const data = await res.json();
     const results = data.results || [];
-
+    state.aiSummaryCache[query] = results;
     renderSearchAISummaries(results);
     setStatus("AI Summary generated ✅");
   } catch (err) {
@@ -352,7 +371,7 @@ function openTab(tabId, button) {
 
   // show selected tab
   document.getElementById(tabId).classList.add("active-tab");
-console.log(DOM.searchSummarySection.innerHTML.trim())
+  console.log(DOM.searchSummarySection.innerHTML.trim());
   // activate button
   button.classList.add("active");
   if (tabId === "aiSummaryTab") {
