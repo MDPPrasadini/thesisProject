@@ -1,55 +1,44 @@
-import whisper
 import json
 import os
-import torch
+from dotenv import load_dotenv
+from openai import OpenAI
+
+load_dotenv()
+
+api_key = os.getenv("OPENAI_API_KEY")
+
+if not api_key:
+    raise ValueError("OPENAI_API_KEY is not set. Check your .env file.")
+
+client = OpenAI(api_key=api_key)
 
 # ===============================
-# CONFIG
-# ===============================
-TRANSCRIPT_DIR = "data/transcripts"
-TRANSCRIPT_PATH = os.path.join(TRANSCRIPT_DIR, "transcript.json")
-
-os.makedirs(TRANSCRIPT_DIR, exist_ok=True)
-
-# ===============================
-# DEVICE SELECTION
-# ===============================
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-print(f"Loading Whisper model on: {DEVICE}")
-
-# tiny = fastest
-# base = better accuracy but slower
-MODEL_SIZE = "tiny"
-
-# Load only once when backend starts
-model = whisper.load_model(MODEL_SIZE, device=DEVICE)
-
-print("Whisper model loaded successfully.")
-
-
-# ===============================
-# TRANSCRIBE FUNCTION
+# TRANSCRIBE FUNCTION (API VERSION)
 # ===============================
 def transcribe_video(video_path):
     try:
-        print(f"Starting transcription: {video_path}")
+        print(f"Starting transcription (OpenAI API): {video_path}")
 
-        result = model.transcribe(
-            video_path,
-            fp16=(DEVICE == "cuda")   
-        )
+        with open(video_path, "rb") as audio_file:
+            transcript = client.audio.transcriptions.create(
+                model="whisper-1",   # or "gpt-4o-mini-transcribe"
+                file=audio_file
+            )
 
-        segments = result["segments"]
+        text = transcript.text
+
+        result = {
+            "text": text
+        }
 
         # Save transcript
         with open(TRANSCRIPT_PATH, "w") as f:
-            json.dump(segments, f, indent=2)
+            json.dump(result, f, indent=2)
 
         print("Transcription completed.")
 
-        return segments
+        return result
 
     except Exception as e:
         print("Transcription failed:", str(e))
-        return []
+        return {"text": "", "error": str(e)}
