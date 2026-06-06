@@ -51,13 +51,12 @@ def transcribe_video(video_path):
         print(f"Starting transcription: {video_path}")
 
         chunk_files = split_audio(video_path)
-
         print(f"Total chunks: {len(chunk_files)}")
 
         all_segments = []
         full_text = ""
 
-        current_time = 0
+        chunk_offset = 0  # total time offset across chunks
 
         for i, chunk in enumerate(chunk_files):
             print(f"Transcribing chunk {i+1}/{len(chunk_files)}")
@@ -65,23 +64,31 @@ def transcribe_video(video_path):
             with open(chunk, "rb") as audio_file:
                 transcript = client.audio.transcriptions.create(
                     model="whisper-1",
-                    file=audio_file
+                    file=audio_file,
+                    response_format="verbose_json"
                 )
 
-            text = transcript.text
-            full_text += text + " "
+            # full text
+            full_text += transcript.text + " "
 
-            # fake segmentation with timestamps
-            sentences = text.split(". ")
+            # REAL segments from Whisper
+            for seg in transcript.segments:
 
-            for s in sentences:
-                if s.strip():
-                    all_segments.append({
-                        "id": len(all_segments),
-                        "start": current_time,
-                        "text": s.strip()
-                    })
-                    current_time += 4
+                # handle both dict/object styles safely
+                start = seg["start"] if isinstance(seg, dict) else seg.start
+                end = seg["end"] if isinstance(seg, dict) else seg.end
+                text = seg["text"] if isinstance(seg, dict) else seg.text
+
+                all_segments.append({
+                    "id": len(all_segments),
+                    "start": start + chunk_offset,
+                    "end": end + chunk_offset,
+                    "text": text.strip()
+                })
+
+            # IMPORTANT: increase offset correctly
+            # since each chunk is 600 sec
+            chunk_offset += 600
 
         result = {
             "full_text": full_text.strip(),
