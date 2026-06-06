@@ -8,3 +8,4 @@ scikit-learn
 ffmpeg-python
 nltk
 openai
+python-dotenv
