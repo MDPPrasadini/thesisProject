@@ -157,7 +157,7 @@ async function generateMainTopics() {
     }
 
     const latest = cached[fileKeys[fileKeys.length - 1]];
-    const segments = latest.transcript;
+    const segments = latest.transcript.segments;
 
     const res = await fetch(API + "/summary", {
       method: "POST",
@@ -204,8 +204,7 @@ async function generateSearchSummary() {
     }
 
     const latest = cached[fileKeys[fileKeys.length - 1]];
-    const segments = latest.transcript;
-    console.log(latest.transcript);
+    const segments = latest.transcript.segments;
     const res = await fetch(API + "/search-summary", {
       method: "POST",
       headers: {
@@ -250,8 +249,8 @@ async function generateSearchAISummary() {
     }
 
     const latest = cached[fileKeys[fileKeys.length - 1]];
-    const segments = latest.transcript;
-    console.log(latest.transcript);
+    const segments = latest.transcript.segments;
+    console.log(latest.transcript.segments);
     const res = await fetch(API + "/search-ai-summary", {
       method: "POST",
       headers: {

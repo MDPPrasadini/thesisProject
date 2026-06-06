@@ -1,81 +1,99 @@
 import json
 import os
 import subprocess
+from dotenv import load_dotenv
 from openai import OpenAI
 
-# ===============================
-# CONFIG
-# ===============================
-TRANSCRIPT_DIR = "data/transcripts"
-TRANSCRIPT_PATH = os.path.join(TRANSCRIPT_DIR, "transcript.json")
+load_dotenv()
 
-os.makedirs(TRANSCRIPT_DIR, exist_ok=True)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# ===============================
-# OPENAI CLIENT
-# ===============================
-api_key = os.getenv("OPENAI_API_KEY")
+TRANSCRIPT_PATH = "data/transcripts/transcript.json"
+os.makedirs(os.path.dirname(TRANSCRIPT_PATH), exist_ok=True)
 
-if not api_key:
-    raise ValueError("OPENAI_API_KEY is not set. Set it in Render environment variables.")
-
-client = OpenAI(api_key=api_key)
 
 # ===============================
-# HELPERS
+# STEP 1: SPLIT AUDIO INTO CHUNKS
 # ===============================
-def extract_audio(video_path: str) -> str:
-    """
-    Convert video → audio (required to avoid OpenAI 25MB limit)
-    """
-    audio_path = video_path.rsplit(".", 1)[0] + ".mp3"
+def split_audio(video_path, chunk_dir="uploads/chunks"):
+    os.makedirs(chunk_dir, exist_ok=True)
 
-    subprocess.run([
+    output_pattern = os.path.join(chunk_dir, "chunk_%03d.mp3")
+
+    command = [
         "ffmpeg",
         "-y",
         "-i", video_path,
-        "-ar", "16000",
+        "-vn",
         "-ac", "1",
-        audio_path
-    ], check=True)
+        "-ar", "16000",
+        "-b:a", "32k",
+        "-f", "segment",
+        "-segment_time", "600",  # 10 minutes
+        "-reset_timestamps", "1",
+        output_pattern
+    ]
 
-    return audio_path
+    subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    return sorted([
+        os.path.join(chunk_dir, f)
+        for f in os.listdir(chunk_dir)
+        if f.endswith(".mp3")
+    ])
 
 
 # ===============================
-# TRANSCRIBE FUNCTION
+# STEP 2: TRANSCRIBE CHUNKS
 # ===============================
 def transcribe_video(video_path):
     try:
-        print(f"Starting transcription (OpenAI API): {video_path}")
+        print(f"Starting transcription: {video_path}")
 
-        # 1. Convert video → audio (fixes 413 error)
-        audio_path = extract_audio(video_path)
+        chunk_files = split_audio(video_path)
 
-        # 2. Send audio to OpenAI Whisper API
-        with open(audio_path, "rb") as audio_file:
-            transcript = client.audio.transcriptions.create(
-                model="whisper-1",
-                file=audio_file
-            )
+        print(f"Total chunks: {len(chunk_files)}")
 
-        text = transcript.text
+        all_segments = []
+        full_text = ""
+
+        current_time = 0
+
+        for i, chunk in enumerate(chunk_files):
+            print(f"Transcribing chunk {i+1}/{len(chunk_files)}")
+
+            with open(chunk, "rb") as audio_file:
+                transcript = client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=audio_file
+                )
+
+            text = transcript.text
+            full_text += text + " "
+
+            # fake segmentation with timestamps
+            sentences = text.split(". ")
+
+            for s in sentences:
+                if s.strip():
+                    all_segments.append({
+                        "id": len(all_segments),
+                        "start": current_time,
+                        "text": s.strip()
+                    })
+                    current_time += 4
 
         result = {
-            "text": text
+            "full_text": full_text.strip(),
+            "segments": all_segments
         }
 
-        # 3. Save transcript locally (optional cache)
-        with open(TRANSCRIPT_PATH, "w") as f:
+        with open(TRANSCRIPT_PATH, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2)
 
         print("Transcription completed successfully.")
-
         return result
 
     except Exception as e:
         print("Transcription failed:", str(e))
-        return {
-            "text": "",
-            "error": str(e)
-        }
+        return {"full_text": "", "segments": [], "error": str(e)}
