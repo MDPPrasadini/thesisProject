@@ -77,7 +77,7 @@ def extract_search_ai_summary(segments, key):
 
 
     response = client.chat.completions.create(
-        model="gpt-4.1-mini",
+        model="gpt-4.1-nano",
         messages=[
             {
                 "role": "user",
@@ -136,7 +136,7 @@ Analyze this lecture transcript.
     """
 
     response = client.chat.completions.create(
-        model="gpt-4.1-mini",
+        model="gpt-4.1-nano",
         messages=[
             {
                 "role": "user",
@@ -193,7 +193,7 @@ def extract_topics_with_ai(segments):
     """
 
     response = client.chat.completions.create(
-        model="gpt-4.1-mini",
+        model="gpt-4.1-nano",
         messages=[
             {
                 "role": "user",
