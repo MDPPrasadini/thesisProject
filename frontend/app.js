@@ -24,6 +24,7 @@ const state = {
   searchQuery: "",
   searchSummaryCache: {},
   aiSummaryCache: {},
+  mainSummaryCache: null
 };
 
 // ===================== UI HELPERS =====================
@@ -76,6 +77,10 @@ async function upload() {
       console.log("Transcript:", data.transcript);
 
       setStatus("Upload complete ✅");
+      // New video uploaded -> clear summary caches
+      state.mainSummaryCache = null;
+      state.searchSummaryCache = {};
+      state.aiSummaryCache = {};
       saveToCache(file.name, {
         transcript: data.transcript,
         segments: data.segments,
@@ -122,7 +127,7 @@ async function search() {
     const results = data.results || [];
     console.log(results);
     renderSearchResults("searchTranscriptSection", results, state.searchQuery);
-
+    document.querySelector(".tab-link").click();
     // SHOW transcript tab
     document
       .querySelectorAll(".tab-pane")
@@ -144,6 +149,13 @@ async function search() {
 
 // =====================  GENERATE MAIN TOPICS =====================
 async function generateMainTopics() {
+
+    // CACHE HIT
+  if (state.mainSummaryCache) {
+    renderMainTopics(state.mainSummaryCache);
+    return;
+  }
+
   showLoader("Generating Lecture Summary...");
   setStatus("Generating Lecture Summary...");
 
@@ -169,7 +181,8 @@ async function generateMainTopics() {
 
     const data = await res.json();
     const results = data.results || [];
-
+    // SAVE TO CACHE
+    state.mainSummaryCache = results;
     renderMainTopics(results);
     setStatus("Summary generated ✅");
   } catch (err) {
@@ -302,7 +315,7 @@ function renderMainTopics(topics) {
   DOM.aiSummarySection.innerHTML = "";
 
   hideTabBar();
-  DOM.mainSummary.classList.add("active-tab");
+  //DOM.mainSummary.classList.add("active-tab");
 
   renderCards({
     container: DOM.mainSummarySection,
@@ -323,7 +336,7 @@ function renderSearchResults(tabId, results, query) {
 }
 
 function renderSearchSummary(topics) {
-  DOM.searchSummaryTab.classList.add("active-tab");
+  //DOM.searchSummaryTab.classList.add("active-tab");
 
   renderCards({
     container: DOM.searchSummarySection,
@@ -333,7 +346,7 @@ function renderSearchSummary(topics) {
 }
 
 function renderSearchAISummaries(aiSummaries) {
-  DOM.aiSummaryTab.classList.add("active-tab");
+  //DOM.aiSummaryTab.classList.add("active-tab");
 
   renderCards({
     container: DOM.aiSummarySection,
@@ -364,8 +377,12 @@ function openTab(tabId, button) {
 
   // remove active button
   const buttons = document.querySelectorAll(".tab-link");
-
   buttons.forEach((btn) => {
+    btn.classList.remove("active");
+  });
+
+  const link = document.querySelectorAll(".tab-link");
+  link.forEach(btn => {
     btn.classList.remove("active");
   });
 
@@ -380,6 +397,7 @@ function openTab(tabId, button) {
   if (tabId == "searchSummaryTab") {
     generateSearchSummary();
   }
+
 }
 
 // ===================== HIGHLIGHT SEARCH =====================
