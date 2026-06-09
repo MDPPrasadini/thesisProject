@@ -203,7 +203,7 @@ async function generateSearchSummary() {
     renderSearchSummary(state.searchSummaryCache[query]);
     return;
   }
-  console.log("@@@@@@")
+
   showLoader("Generating Lecture Summary...");
   setStatus("Generating Lecture Summary...");
 
