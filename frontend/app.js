@@ -58,7 +58,9 @@ async function upload() {
     showLoader("Uploading...");
     setStatus("Uploading...");
   };
-
+      state.mainSummaryCache = null;
+      state.searchSummaryCache = {};
+      state.aiSummaryCache = {};
   xhr.upload.onprogress = function (event) {
     if (event.lengthComputable) {
       const percent = Math.round((event.loaded / event.total) * 100);
@@ -78,9 +80,7 @@ async function upload() {
 
       setStatus("Upload complete ✅");
       // New video uploaded -> clear summary caches
-      state.mainSummaryCache = null;
-      state.searchSummaryCache = {};
-      state.aiSummaryCache = {};
+
       saveToCache(file.name, {
         transcript: data.transcript,
         segments: data.segments,
@@ -311,9 +311,13 @@ async function showMainTopics() {
 }
 
 function renderMainTopics(topics) {
-  DOM.searchTranscriptSection.innerHTML = "";
-  DOM.aiSummarySection.innerHTML = "";
+  // Hide all tabs
+  document.querySelectorAll(".tab-pane").forEach(tab => {
+    tab.classList.remove("active-tab");
+  });
 
+  // Show main summary tab
+  DOM.mainSummary.classList.add("active-tab");
   hideTabBar();
   //DOM.mainSummary.classList.add("active-tab");
 
@@ -560,8 +564,8 @@ function renderCards({
     }
 
     html += `
-        <button onclick="jump(${item.timestamp})">
-          Jump to ${formatTime(item.timestamp)}
+        <button onclick="jump(${item.start_timestamp})">
+          Jump to ${formatTime(item.start_timestamp)}
         </button>
 
       </div>
