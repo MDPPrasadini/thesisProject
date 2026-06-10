@@ -162,7 +162,7 @@ def get_samples():
     }
 @app.post("/sample-transcribe")
 async def sample_transcribe(data: UrlRequest):
-    file_path = data.url.replace("https://thesisproject-7om6.onrender.com/", "")
+    file_path = data.url.replace("https://ai-lecture-search-api.onrender.com/", "")
     transcript = transcribe_video(file_path)
 
     return {
