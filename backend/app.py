@@ -7,6 +7,7 @@ from .transcribe import transcribe_video
 from .search import search_transcript
 from .downloader import download_video
 from .services import extract_topics_with_ai, extract_search_summary, extract_search_ai_summary
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
@@ -21,6 +22,8 @@ app.add_middleware(
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# ===================== SAMPLE FILES =====================
+app.mount("/samples", StaticFiles(directory="samples"), name="samples")
 
 # ===== MODELS =====
 class UrlRequest(BaseModel):
@@ -131,3 +134,38 @@ async def get_search_ai_summary(data: SearchAISummaryRequest):
             "status": "error",
             "message": "Failed to generate summary"
         }
+    
+    # ===================== SAMPLE LIST API =====================
+@app.get("/samples")
+def get_samples():
+    return {
+        "samples": [
+            {
+                "id": "lec1",
+                "title": "Neural Networks Intro",
+                "video": "/samples/lec1.mp4",
+                "transcript": "/samples/lec1.json"
+            },
+            {
+                "id": "lec2",
+                "title": "Operating Systems Basics",
+                "video": "/samples/lec2.mp4",
+                "transcript": "/samples/lec2.json"
+            },
+            {
+                "id": "lec3",
+                "title": "Data Structures",
+                "video": "/samples/lec3.mp4",
+                "transcript": "/samples/lec3.json"
+            }
+        ]
+    }
+@app.post("/sample-transcribe")
+async def sample_transcribe(data: UrlRequest):
+    file_path = data.url.replace("http://127.0.0.1:8000/", "")
+    transcript = transcribe_video(file_path)
+
+    return {
+        "status": "success",
+        "transcript": transcript
+    }
