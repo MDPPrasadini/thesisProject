@@ -1,4 +1,4 @@
-const API = "http://127.0.0.1:8000";
+const API = "https://thesisproject-7om6.onrender.com";
 
 const DOM = {
     status: document.getElementById("status"),
