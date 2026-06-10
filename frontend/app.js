@@ -1,4 +1,4 @@
-const API = "https://thesisproject-7om6.onrender.com";
+const API = "https://ai-lecture-search-api.onrender.com/";
 
 const DOM = {
     status: document.getElementById("status"),
