@@ -16,7 +16,11 @@ def search_transcript(data):
         response = requests.get(url)
         segments = response.json()
     else:
-        print("Path:", TRANSCRIPT_PATH)
+        print("Loading local transcript")
+        print("Absolute path:", full_path)
+        print("File exists:", os.path.exists(full_path))
+        if not os.path.exists(full_path):
+            raise Exception(f"Transcript file not found: {full_path}")
         with open(TRANSCRIPT_PATH, "r", encoding="utf-8") as f:
             content = f.read()
         segments = json.loads(content)
