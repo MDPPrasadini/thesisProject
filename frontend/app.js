@@ -61,6 +61,8 @@ async function upload() {
         showLoader("Uploading...");
         setStatus("Uploading...");
     };
+    state.activeLecture = null,
+    state.activeTranscript = null,
     state.mainSummaryCache = null;
     state.searchSummaryCache = {};
     state.aiSummaryCache = {};
@@ -116,13 +118,24 @@ async function search() {
     showLoader("Searching...");
     setStatus("Searching...");
     DOM.mainSummarySection.innerHTML = "";
+    console.log(state)
     try {
+        const isSample = state.activeLecture?.endsWith(".mp4") || false;
+
+        const payload = {
+            query: state.searchQuery || "",
+            issample: isSample,
+            filename: state.activeLecture ? String(state.activeLecture) : ""
+        };
+
+        console.log("SEARCH PAYLOAD:", payload);
+
         const res = await fetch(API + "/search", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ query: state.searchQuery }),
+           body: JSON.stringify(payload),
         });
 
         const data = await res.json();

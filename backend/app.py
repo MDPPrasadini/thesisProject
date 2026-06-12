@@ -31,6 +31,8 @@ class UrlRequest(BaseModel):
 
 class SearchRequest(BaseModel):
     query: str
+    issample: bool = False
+    filename: str = ""
 
 class SummaryRequest(BaseModel):
     segments: list
@@ -64,7 +66,7 @@ async def upload(file: UploadFile = File(...)):
 # ===== SEARCH (POST for frontend flexibility) =====
 @app.post("/search")
 def search(data: SearchRequest):
-    results = search_transcript(data.query)
+    results = search_transcript(data)
 
     return {
         "status": "success",
