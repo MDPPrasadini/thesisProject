@@ -357,7 +357,7 @@ function renderSearchSummary(topics) {
 
   renderCards({
     container: DOM.searchSummarySection,
-    title: "Search Topics",
+    title: "Search Related Topics",
     items: topics,
   });
 }
@@ -367,7 +367,7 @@ function renderSearchAISummaries(aiSummaries) {
 
   renderCards({
     container: DOM.aiSummarySection,
-    title: "Main Lecture Topics",
+    title: "Search Related Topics (AI)",
     items: aiSummaries,
     summaryField: "lecture_summary",
     showResources: true,
