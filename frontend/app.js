@@ -1,4 +1,4 @@
-const API = "http://localhost:8000" //"https://ai-lecture-search-api.onrender.com";
+const API = "https://ai-lecture-search-api.onrender.com";
 
 const DOM = {
     status: document.getElementById("status"),
