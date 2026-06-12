@@ -1,6 +1,6 @@
 import json
 import requests
-
+import os
 
 TRANSCRIPT_PATH = "data/transcripts/transcript.json"
 SAMPLE_TRANSCRIPT_PATH = "https://ai-lecture-search-api.onrender.com/samples/"
@@ -17,6 +17,7 @@ def search_transcript(data):
         segments = response.json()
     else:
         print("Loading local transcript")
+        full_path = os.path.abspath(TRANSCRIPT_PATH)
         print("Absolute path:", full_path)
         print("File exists:", os.path.exists(full_path))
         if not os.path.exists(full_path):
