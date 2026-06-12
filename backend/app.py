@@ -66,8 +66,6 @@ async def upload(file: UploadFile = File(...)):
 # ===== SEARCH (POST for frontend flexibility) =====
 @app.post("/search")
 def search(data: SearchRequest):
-    print("????")
-    print(data)
     results = search_transcript(data)
 
     return {
