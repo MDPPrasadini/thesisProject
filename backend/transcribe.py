@@ -89,6 +89,7 @@ def transcribe_video(video_path):
         with open(transcript_path, "w") as f:
             json.dump(segments, f, indent=2)
 
+        print(f"Transcription Path: {transcript_path}")
         print("Transcription completed.")
 
         return segments
