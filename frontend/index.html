@@ -46,13 +46,80 @@
     </section>
 
     <section class="samples card">
-      <h3 class="section-title">Sample Lectures</h3>
+        <div class="samples-header">
+            <div>
+                <h3 class="section-title">Sample Lectures</h3>
+                <p class="section-subtitle">
+                    Explore the platform using sample lectures and discover AI-powered transcript search, lecture summaries, and topic insights.
+                </p>
+            </div>
+        </div>
 
-      <div class="sample-buttons">
-        <button class="dsv-btn" onclick="loadSample('lec1.mp4')">Lecture 1</button>
-        <button class="dsv-btn" onclick="loadSample('lec2.mp4')">Lecture 2</button>
-        <button class="dsv-btn" onclick="loadSample('lec3.mp4')">Lecture 3</button>
-      </div>
+        <div class="sample-grid">
+            <!-- Lecture 1 -->
+            <div class="sample-card" onclick="loadSample('lec1.mp4')">
+                <div class="thumb thumb1">
+                    <span class="duration">03:00</span>
+                </div>
+
+                <div class="sample-content">
+                    <div class="sample-info">
+                        <div class="lecture-title">
+                            Natural Language Processing
+                        </div>
+                        <p>
+                            Word Embeddings and Language Models
+                        </p>
+                    </div>
+
+                    <div class="play-btn">
+                        ▶
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lecture 2 -->
+            <div class="sample-card" onclick="loadSample('lec2.mp4')">
+                <div class="thumb thumb2">
+                    <span class="duration">03.00</span>
+                </div>
+                <div class="sample-content">
+                    <div class="sample-info">
+                        <div class="lecture-title">
+                            DAMI
+                        </div>
+                        <p>
+                            Introduction to Python.
+                        </p>
+                    </div>
+
+                    <div class="play-btn">
+                        ▶
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lecture 3 -->
+            <div class="sample-card" onclick="loadSample('lec3.mp4')">
+                <div class="thumb thumb3">
+                    <span class="duration">11:53</span>
+                </div>
+                <div class="sample-content">
+                    <div class="sample-info">
+                        <div class="lecture-title">
+                            Internet Security
+                        </div>
+                        <p>
+                            Weeknesses and Targets.
+                        </p>
+                    </div>
+                    <div class="play-btn">
+                        ▶
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </section>
     <!-- STATUS -->
     <div id="status" class="status"></div>
