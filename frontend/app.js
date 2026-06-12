@@ -125,7 +125,7 @@ async function search() {
         const payload = {
             query: state.searchQuery || "",
             issample: isSample,
-            filename: state.activeLecture ? String(state.activeLecture) : ""
+            filename: state.activeLecture ? String(state.activeLecture) : "transcript"
         };
 
         console.log("SEARCH PAYLOAD:", payload);
