@@ -2,9 +2,9 @@ import json
 import requests
 import os
 
-TRANSCRIPT_PATH = "data/transcripts/transcript.json"
+# TRANSCRIPT_PATH = "data/transcripts/transcript.json"
 SAMPLE_TRANSCRIPT_PATH = "https://ai-lecture-search-api.onrender.com/samples/"
-UPLOAD_FOLDER = "uploads/" # change this if use local - "data/transcripts/transcript" in server "uploads"
+TRANSCRIPT_PATH = "uploads/"
 
 def search_transcript(data):
 
@@ -28,7 +28,7 @@ def search_transcript(data):
         # segments = json.loads(content)
                 # Use uploaded transcript
         transcript_path = os.path.join(
-            UPLOAD_FOLDER,
+            TRANSCRIPT_PATH,
             data.filename + ".json"
         )
         print("Loading local transcript:", transcript_path)

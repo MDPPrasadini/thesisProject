@@ -1,4 +1,4 @@
-const API = "https://ai-lecture-search-api.onrender.com";
+const API = "https://ai-lecture-search-api.onrender.com"; //"http://localhost:8000" //
 
 const DOM = {
     status: document.getElementById("status"),
@@ -25,6 +25,7 @@ const state = {
     searchSummaryCache: {},
     aiSummaryCache: {},
     mainSummaryCache: null,
+    issample: false,
     activeLecture: null,
     activeTranscript: null
 };
@@ -53,7 +54,7 @@ async function upload() {
     const file = fileInput.files[0];
     const formData = new FormData();
     formData.append("file", file);
-
+    console.log(file)
     const xhr = new XMLHttpRequest();
     xhr.open("POST", API + "/upload");
 
@@ -63,6 +64,7 @@ async function upload() {
     };
     state.activeLecture = null,
     state.activeTranscript = null,
+    state.issample = false,
     state.mainSummaryCache = null;
     state.searchSummaryCache = {};
     state.aiSummaryCache = {};
@@ -82,7 +84,7 @@ async function upload() {
         try {
             const data = JSON.parse(xhr.responseText);
             console.log("Transcript:", data.transcript);
-
+            state.activeLecture = file.name,
             setStatus("Upload complete ✅");
             // New video uploaded -> clear summary caches
 
@@ -120,12 +122,11 @@ async function search() {
     DOM.mainSummarySection.innerHTML = "";
     console.log(state)
     try {
-        const isSample = state.activeLecture?.endsWith(".mp4") || false;
 
         const payload = {
             query: state.searchQuery || "",
-            issample: isSample,
-            filename: state.activeLecture ? String(state.activeLecture) : "transcript"
+            issample: state.issample,
+            filename: String(state.activeLecture)
         };
 
         console.log("SEARCH PAYLOAD:", payload);
@@ -628,6 +629,7 @@ async function loadSample(filename) {
 
         state.activeLecture = filename;
         state.activeTranscript = data.transcript;
+        state.issample = true;
 
         saveToCache(filename, {
             transcript: data.transcript,
