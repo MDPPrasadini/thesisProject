@@ -458,3 +458,337 @@ input[type="file"]::file-selector-button {
 input[type="file"]::file-selector-button:hover {
   background: #002244;
 }
+
+.sample-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+/* CARD */
+.sample-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sample-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+/* THUMBNAIL */
+.thumb {
+  height: 140px;
+  background: linear-gradient(135deg, #003366, #0055aa);
+  position: relative;
+}
+
+/* different thumbnails */
+.thumb1 {
+  background: url("lec1.jpg") center/cover;
+}
+.thumb2 {
+  background: url("lec2.jpg") center/cover;
+}
+
+.thumb3 { 
+    background: url("lec3.jpg") center/cover;
+}
+
+/* play icon */
+.play-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  color: white;
+  background: rgba(0,0,0,0.4);
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* duration badge */
+.duration {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* INFO */
+.sample-info {
+  padding: 12px;
+}
+
+.sample-info h4 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.sample-info p {
+  margin: 4px 0 10px;
+  font-size: 13px;
+  color: #666;
+}
+
+/* TAGS */
+.tags {
+  display: flex;
+  gap: 6px;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  background: #e6eef8;
+  color: #003366;
+}
+
+.section-subtitle {
+  margin-top: -4px;
+  margin-bottom: 18px;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ===================================
+   SAMPLE LECTURES
+=================================== */
+
+.samples.card {
+    margin-top: 20px;
+    background: white;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.section-title {
+    font-size: 32px;
+    margin: 0;
+    color: #111;
+}
+
+.section-subtitle {
+    margin-top: 8px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.sample-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 18px;
+    margin-top: 20px;
+}
+
+/* CARD */
+
+.sample-card {
+    display: flex;
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+    height: 168px;
+}
+
+.sample-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.10);
+}
+
+/* THUMBNAIL */
+
+.thumb {
+    width: 250px;
+    min-width: 170px;
+    height: 170px;
+
+    position: relative;
+
+    background-size: cover;
+    background-position: center;
+}
+
+/* USE YOUR OWN THUMBNAILS */
+
+.thumb1 {
+    background-image: url("lec1.jpg");
+}
+
+.thumb2 {
+    background-image: url("lec2.jpg");
+}
+
+.thumb3 {
+    background-image: url("lec3.jpg");
+}
+
+/* DURATION */
+
+.duration {
+    position: absolute;
+
+    bottom: 10px;
+    right: 10px;
+
+    background: rgba(0,0,0,0.75);
+
+    color: white;
+
+    font-size: 12px;
+
+    padding: 5px 8px;
+
+    border-radius: 6px;
+}
+
+/* CONTENT */
+
+.sample-content {
+    flex: 1;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 18px;
+}
+
+.sample-info {
+    flex: 1;
+}
+
+.sample-info h4 {
+    margin: 0;
+
+    font-size: 18px;
+
+    font-weight: 600;
+
+    color: #111;
+}
+
+.lecture-title {
+    font-size: 15px;
+
+    font-weight: 600;
+
+    margin-top: 8px;
+
+    color: #111;
+}
+
+.sample-info p {
+    margin-top: 12px;
+
+    margin-bottom: 16px;
+
+    color: #555;
+
+    line-height: 1.5;
+}
+
+/* META */
+
+.meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tag {
+    background: #e8efff;
+
+    color: #003366;
+
+    padding: 5px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+
+    font-weight: 500;
+}
+
+.tag.purple {
+    background: #efe7ff;
+    color: #6b21a8;
+}
+
+/* PLAY BUTTON */
+
+.play-btn {
+    width: 52px;
+    height: 52px;
+
+    border-radius: 50%;
+
+    background: #003366;
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 20px;
+
+    flex-shrink: 0;
+}
+
+/* MOBILE */
+
+@media (max-width: 900px) {
+
+    .sample-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sample-card {
+        flex-direction: column;
+        height: 168px;
+    }
+
+    .thumb {
+        width: 100%;
+        height: 220px;
+    }
+
+    .sample-content {
+        align-items: flex-start;
+    }
+
+    .play-btn {
+        margin-left: 20px;
+    }
+}
