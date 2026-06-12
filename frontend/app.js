@@ -1,4 +1,4 @@
-const API = "https://ai-lecture-search-api.onrender.com"; //"http://localhost:8000" //
+const API = "http://localhost:8000" //"https://ai-lecture-search-api.onrender.com"; 
 
 const DOM = {
     status: document.getElementById("status"),
@@ -227,15 +227,13 @@ async function generateSearchSummary() {
     try {
         const cached = JSON.parse(localStorage.getItem("lectureCache") || "{}");
         const fileKeys = Object.keys(cached);
-
         if (!fileKeys.length) {
             setStatus("Please upload a lecture first.");
             return;
         }
 
-        const latest = cached[fileKeys[fileKeys.length - 1]];
+        const latest = cached[state.activeLecture];
         const segments = latest.transcript;
-        console.log(latest.transcript);
         const res = await fetch(API + "/search-summary", {
             method: "POST",
             headers: {
@@ -279,9 +277,8 @@ async function generateSearchAISummary() {
             return;
         }
 
-        const latest = cached[fileKeys[fileKeys.length - 1]];
+        const latest = cached[state.activeLecture];
         const segments = latest.transcript;
-        console.log(latest.transcript);
         const res = await fetch(API + "/search-ai-summary", {
             method: "POST",
             headers: {

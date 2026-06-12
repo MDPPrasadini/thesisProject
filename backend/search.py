@@ -2,7 +2,6 @@ import json
 import requests
 import os
 
-# TRANSCRIPT_PATH = "data/transcripts/transcript.json"
 SAMPLE_TRANSCRIPT_PATH = "https://ai-lecture-search-api.onrender.com/samples/"
 TRANSCRIPT_PATH = "uploads/"
 
@@ -18,15 +17,6 @@ def search_transcript(data):
         segments = response.json()
     else:
         print("Loading local transcript")
-        full_path = os.path.abspath(TRANSCRIPT_PATH)
-        print("Absolute path:", full_path)
-        print("File exists:", os.path.exists(full_path))
-        # if not os.path.exists(full_path):
-        #     raise Exception(f"Transcript file not found: {full_path}")
-        # with open(TRANSCRIPT_PATH, "r", encoding="utf-8") as f:
-        #     content = f.read()
-        # segments = json.loads(content)
-                # Use uploaded transcript
         transcript_path = os.path.join(
             TRANSCRIPT_PATH,
             data.filename + ".json"
