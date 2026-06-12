@@ -1,4 +1,4 @@
-const API = "https://ai-lecture-search-api.onrender.com";
+const API = "http://localhost:8000" //"https://ai-lecture-search-api.onrender.com";
 
 const DOM = {
     status: document.getElementById("status"),
@@ -125,7 +125,7 @@ async function search() {
         const payload = {
             query: state.searchQuery || "",
             issample: isSample,
-            filename: state.activeLecture ? String(state.activeLecture) : ""
+            filename: state.activeLecture ? String(state.activeLecture) : "transcript"
         };
 
         console.log("SEARCH PAYLOAD:", payload);

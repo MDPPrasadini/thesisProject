@@ -4,6 +4,7 @@ import os
 
 TRANSCRIPT_PATH = "data/transcripts/transcript.json"
 SAMPLE_TRANSCRIPT_PATH = "https://ai-lecture-search-api.onrender.com/samples/"
+UPLOAD_FOLDER = "uploads/" # change this if use local - "data/transcripts/transcript" in server "uploads"
 
 def search_transcript(data):
 
@@ -20,11 +21,23 @@ def search_transcript(data):
         full_path = os.path.abspath(TRANSCRIPT_PATH)
         print("Absolute path:", full_path)
         print("File exists:", os.path.exists(full_path))
-        if not os.path.exists(full_path):
-            raise Exception(f"Transcript file not found: {full_path}")
-        with open(TRANSCRIPT_PATH, "r", encoding="utf-8") as f:
-            content = f.read()
-        segments = json.loads(content)
+        # if not os.path.exists(full_path):
+        #     raise Exception(f"Transcript file not found: {full_path}")
+        # with open(TRANSCRIPT_PATH, "r", encoding="utf-8") as f:
+        #     content = f.read()
+        # segments = json.loads(content)
+                # Use uploaded transcript
+        transcript_path = os.path.join(
+            UPLOAD_FOLDER,
+            data.filename + ".json"
+        )
+        print("Loading local transcript:", transcript_path)
+
+        if not os.path.exists(transcript_path):
+            raise Exception(f"Transcript file not found: {transcript_path}")
+
+        with open(transcript_path, "r", encoding="utf-8") as f:
+            segments = json.load(f)
 
     results = []
     for s in segments:
