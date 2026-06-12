@@ -1,4 +1,4 @@
-const API = "https://ai-lecture-search-api.onrender.com" //"http://localhost:8000"; //
+const API = "https://ai-lecture-search-api.onrender.com"; //"http://localhost:8000"
 
 const DOM = {
   status: document.getElementById("status"),
@@ -317,6 +317,7 @@ async function showMainTopics() {
   console.log(fileInput);
   const file = fileInput.files[0];
   const cached = getFromCache(state.issample ? state.activeLecture : file.name);
+  console.log(cached)
   if (cached) {
     generateMainTopics();
   }
@@ -636,11 +637,9 @@ async function loadSample(filename) {
 
     setStatus("Sample loaded ✅");
 
-    showMainTopics();
+    await showMainTopics();
   } catch (err) {
     console.error("Sample error:", err);
     setStatus("Failed to load sample ❌");
-  } finally {
-    hideLoader();
   }
 }
