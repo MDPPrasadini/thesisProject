@@ -32,7 +32,9 @@
     <section class="dsv-controls">
       <div class="control-group">
         <input type="file" id="fileInput">
-        <button onclick="upload()" class="sample-card button">Upload Lecture</button>
+        <button type="button" onclick="upload()" class="dsv-btn">
+          Upload Lecture
+        </button>
         <div id="uploadProgress" class="progress"></div>
       </div>
 
@@ -43,19 +45,15 @@
         <div id="searchProgress" class="progress"></div>
     </section>
 
-    <!-- SAMPLE LECTURES -->
-    <!--     <section class="samples">
-      <h3>Sample Lectures (Try Without Upload)</h3>
-      <div id="samplesContainer"></div>
-    </section> -->
-    <div class="samples">
-      <h3>Sample Lectures</h3>
+    <section class="samples card">
+      <h3 class="section-title">Sample Lectures</h3>
 
-      <button onclick="loadSample('lec1.mp4')">Lecture 1</button>
-      <button onclick="loadSample('lec2.mp4')">Lecture 2</button>
-      <button onclick="loadSample('lec3.mp4')">Lecture 3</button>
-    </div>
-
+      <div class="sample-buttons">
+        <button class="dsv-btn" onclick="loadSample('lec1.mp4')">Lecture 1</button>
+        <button class="dsv-btn" onclick="loadSample('lec2.mp4')">Lecture 2</button>
+        <button class="dsv-btn" onclick="loadSample('lec3.mp4')">Lecture 3</button>
+      </div>
+    </section>
     <!-- STATUS -->
     <div id="status" class="status"></div>
 
